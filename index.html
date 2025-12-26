@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نرخ لحظه‌ای ارز و طلا</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vazirmatn Font -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        /* Metallic Silver Background */
+        .metallic-bg {
+            background: linear-gradient(135deg, #C0C0C0 0%, #E8E8E8 25%, #A0A0A0 50%, #D8D8D8 75%, #B0B0B0 100%);
+            background-size: 400% 400%;
+            animation: shimmer 15s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating Blobs for Liquid Effect */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            z-index: 0;
+            animation: float 10s infinite alternate;
+        }
+        .blob-1 { background: #8e9eab; width: 300px; height: 300px; top: -50px; left: -50px; }
+        .blob-2 { background: #eef2f3; width: 400px; height: 400px; bottom: -100px; right: -100px; animation-delay: -5s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(30px, 50px); }
+        }
+
+        /* Liquid Glass Card Style */
+        .liquid-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                0 4px 30px rgba(0, 0, 0, 0.1),
+                inset 0 0 20px rgba(255, 255, 255, 0.2);
+            border-radius: 40px; /* Extra rounded corners as requested */
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .liquid-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.2),
+                inset 0 0 20px rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Liquid Reflection overlay */
+        .liquid-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .liquid-card:hover::before {
+            left: 100%;
+        }
+
+        .price-up { color: #10B981; animation: pulse-green 1s; }
+        .price-down { color: #EF4444; animation: pulse-red 1s; }
+
+        @keyframes pulse-green {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+            100% { transform: scale(1); }
+        }
+        @keyframes pulse-red {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+            100% { transform: scale(1); }
+        }
+
+    </style>
+</head>
+<body class="metallic-bg min-h-screen flex flex-col items-center justify-center p-4 text-gray-800">
+
+    <!-- Background Decoration -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <!-- Header -->
+    <header class="text-center mb-10 z-10 relative">
+        <h1 class="text-4xl font-black mb-2 text-gray-800 drop-shadow-lg tracking-tight">تابلو اعلام نرخ</h1>
+        <p class="text-gray-600 text-lg font-medium bg-white/30 backdrop-blur-md px-4 py-1 rounded-full inline-block border border-white/40">
+            <span id="current-date">در حال بارگذاری...</span> | <span id="current-time">--:--</span>
+        </p>
+    </header>
+
+    <!-- Grid Container -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl z-10 px-4">
+
+        <!-- Card 1: USD -->
+        <div class="liquid-card p-6 flex flex-col items-center justify-between aspect-square">
+            <div class="bg-green-100/50 p-4 rounded-full mb-2 backdrop-blur-sm shadow-inner">
+                <i data-lucide="dollar-sign" class="w-10 h-10 text-green-700"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-700 mb-1">دلار آمریکا</h2>
+            <div class="flex flex-col items-center w-full mt-2">
+                <span class="text-sm text-gray-500 mb-1">قیمت لحظه‌ای (تومان)</span>
+                <span id="price-usd" class="text-4xl font-black tracking-tighter transition-colors duration-300">--</span>
+                <div id="change-usd" class="text-sm font-bold mt-2 flex items-center gap-1 opacity-0 transition-opacity duration-300">
+                    <span class="value">0</span>%
+                    <i data-lucide="trending-up" class="w-4 h-4 icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Euro -->
+        <div class="liquid-card p-6 flex flex-col items-center justify-between aspect-square">
+            <div class="bg-blue-100/50 p-4 rounded-full mb-2 backdrop-blur-sm shadow-inner">
+                <i data-lucide="euro" class="w-10 h-10 text-blue-700"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-700 mb-1">یورو اروپا</h2>
+            <div class="flex flex-col items-center w-full mt-2">
+                <span class="text-sm text-gray-500 mb-1">قیمت لحظه‌ای (تومان)</span>
+                <span id="price-eur" class="text-4xl font-black tracking-tighter transition-colors duration-300">--</span>
+                <div id="change-eur" class="text-sm font-bold mt-2 flex items-center gap-1 opacity-0 transition-opacity duration-300">
+                    <span class="value">0</span>%
+                    <i data-lucide="trending-up" class="w-4 h-4 icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Gold 18k -->
+        <div class="liquid-card p-6 flex flex-col items-center justify-between aspect-square">
+            <div class="bg-yellow-100/50 p-4 rounded-full mb-2 backdrop-blur-sm shadow-inner">
+                <i data-lucide="gem" class="w-10 h-10 text-yellow-700"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-700 mb-1">طلای ۱۸ عیار</h2>
+            <div class="flex flex-col items-center w-full mt-2">
+                <span class="text-sm text-gray-500 mb-1">هر گرم (تومان)</span>
+                <span id="price-gold" class="text-4xl font-black tracking-tighter transition-colors duration-300">--</span>
+                <div id="change-gold" class="text-sm font-bold mt-2 flex items-center gap-1 opacity-0 transition-opacity duration-300">
+                    <span class="value">0</span>%
+                    <i data-lucide="trending-up" class="w-4 h-4 icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: Full Coin -->
+        <div class="liquid-card p-6 flex flex-col items-center justify-between aspect-square">
+            <div class="bg-orange-100/50 p-4 rounded-full mb-2 backdrop-blur-sm shadow-inner">
+                <i data-lucide="circle-dot" class="w-10 h-10 text-orange-700"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-700 mb-1">سکه تمام بهار</h2>
+            <div class="flex flex-col items-center w-full mt-2">
+                <span class="text-sm text-gray-500 mb-1">طرح جدید (تومان)</span>
+                <span id="price-coin" class="text-4xl font-black tracking-tighter transition-colors duration-300">--</span>
+                <div id="change-coin" class="text-sm font-bold mt-2 flex items-center gap-1 opacity-0 transition-opacity duration-300">
+                    <span class="value">0</span>%
+                    <i data-lucide="trending-up" class="w-4 h-4 icon"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="mt-8 text-center z-10">
+        <p class="text-gray-500 text-sm bg-white/20 backdrop-blur px-4 py-2 rounded-lg">
+            * قیمت‌ها به صورت شبیه‌سازی شده و بر اساس نوسانات بازار به‌روزرسانی می‌شوند.
+        </p>
+    </div>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Helper to format numbers with commas
+        const formatNumber = (num) => {
+            return new Intl.NumberFormat('fa-IR').format(Math.floor(num));
+        };
+
+        // Date and Time
+        const updateDateTime = () => {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            document.getElementById('current-date').innerText = new Intl.DateTimeFormat('fa-IR', options).format(now);
+            
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('current-time').innerText = new Intl.DateTimeFormat('fa-IR', timeOptions).format(now);
+        };
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        // Initial Data (Approximate Base Prices in Tomans)
+        let rates = {
+            usd: 68500,
+            eur: 73200,
+            gold: 4500000, // Per Gram
+            coin: 51000000 // Full Coin
+        };
+
+        // DOM Elements
+        const elements = {
+            usd: { price: document.getElementById('price-usd'), change: document.getElementById('change-usd') },
+            eur: { price: document.getElementById('price-eur'), change: document.getElementById('change-eur') },
+            gold: { price: document.getElementById('price-gold'), change: document.getElementById('change-gold') },
+            coin: { price: document.getElementById('price-coin'), change: document.getElementById('change-coin') }
+        };
+
+        // Function to update display
+        const updateDisplay = (key, newValue, oldValue) => {
+            const el = elements[key];
+            
+            // Update Price Text
+            el.price.innerText = formatNumber(newValue);
+            
+            // Calculate Change
+            const diff = newValue - oldValue;
+            const percent = ((diff / oldValue) * 100).toFixed(2);
+            
+            // Style Update
+            el.change.classList.remove('opacity-0');
+            el.change.querySelector('.value').innerText = percent.replace('-', ''); // Remove negative sign for display logic handling
+            
+            // Reset animations
+            el.price.classList.remove('price-up', 'price-down');
+            void el.price.offsetWidth; // Trigger reflow
+
+            if (diff > 0) {
+                el.price.classList.add('price-up');
+                el.change.classList.remove('text-red-500');
+                el.change.classList.add('text-green-600');
+                el.change.querySelector('.icon').setAttribute('data-lucide', 'trending-up');
+            } else if (diff < 0) {
+                el.price.classList.add('price-down');
+                el.change.classList.remove('text-green-600');
+                el.change.classList.add('text-red-500');
+                el.change.querySelector('.icon').setAttribute('data-lucide', 'trending-down');
+            }
+            
+            // Re-render icon
+            lucide.createIcons();
+        };
+
+        // Simulation Loop
+        const simulateMarket = () => {
+            Object.keys(rates).forEach(key => {
+                // 40% chance to update a specific currency
+                if (Math.random() > 0.6) {
+                    const oldPrice = rates[key];
+                    
+                    // Generate a random fluctuation between -0.5% and +0.5%
+                    const volatility = 0.005; 
+                    const change = 1 + (Math.random() * volatility * 2 - volatility);
+                    
+                    rates[key] = Math.floor(oldPrice * change);
+                    
+                    updateDisplay(key, rates[key], oldPrice);
+                }
+            });
+        };
+
+        // Initialize display
+        Object.keys(rates).forEach(key => updateDisplay(key, rates[key], rates[key]));
+
+        // Run simulation every 3 seconds
+        setInterval(simulateMarket, 3000);
+
+    </script>
+</body>
+</html>
+
